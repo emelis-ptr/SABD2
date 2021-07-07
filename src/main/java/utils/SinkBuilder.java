@@ -1,4 +1,4 @@
-package main.java.utils;
+package utils;
 
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.core.fs.Path;
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class SinkBuilder {
 
     public static StreamingFileSink<String> buildSink(String outputPath) {
-        StreamingFileSink<String> sink = StreamingFileSink
+        return StreamingFileSink
                 .forRowFormat(new Path(outputPath), new SimpleStringEncoder<String>())
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
@@ -19,7 +19,6 @@ public class SinkBuilder {
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
                 .build();
-        return sink;
     }
 
 }

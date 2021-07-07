@@ -1,4 +1,4 @@
-package main.java.assigner;
+package assigner;
 
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.WindowStagger;

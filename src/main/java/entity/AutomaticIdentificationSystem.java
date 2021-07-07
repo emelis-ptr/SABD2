@@ -1,22 +1,20 @@
-package main.java.entity;
+package entity;
 
+import utils.Utils;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple11;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.streaming.connectors.nifi.NiFiDataPacket;
 import org.apache.flink.util.Collector;
-import utils.Utils;
+import org.apache.kafka.streams.kstream.KStream;
 
-import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.util.ArrayList;
 
-public class AutomaticIdentificationSystem
-        //extends Tuple11<String, String, String, String, String, String, String, String, String, String, String> {
-{
+import static utils.Constants.CSV_SEP;
+
+public class AutomaticIdentificationSystem {
+
     public String shipID; // stringa esadecimale che rappresenta l’identificativo della nave.
     public String shipType; // numero intero che rappresenta la tipologia della nave.
     public String speed; // numero in virgola mobile che rappresenta la velocità misurata in nodi a cui procede la nave all’istante di segnalazione dell’evento; il separatore decimale è il punto.
@@ -51,10 +49,6 @@ public class AutomaticIdentificationSystem
         return shipType;
     }
 
-    public String getSpeed() {
-        return speed;
-    }
-
     public String getLon() {
         return lon;
     }
@@ -63,37 +57,26 @@ public class AutomaticIdentificationSystem
         return lat;
     }
 
-    public String getCourse() {
-        return course;
-    }
-
-    public String getHeading() {
-        return heading;
-    }
-
     public String getTimestamp() {
         return timestamp;
-    }
-
-    public String getDepartureportName() {
-        return departureportName;
-    }
-
-    public String getReportedDraught() {
-        return reportedDraught;
     }
 
     public String getTripID() {
         return tripID;
     }
 
+    /**
+     * Flink
+     * @param streamExecEnv:
+     * @param consumer:
+     * @return :
+     */
     public static DataStream<Tuple2<Long, AutomaticIdentificationSystem>> getInstanceAIS(StreamExecutionEnvironment streamExecEnv, FlinkKafkaConsumer<String> consumer) {
         return streamExecEnv.addSource(consumer)
                 .flatMap(new FlatMapFunction<String, Tuple2<Long, AutomaticIdentificationSystem>>() {
                     @Override
                     public void flatMap(String s, Collector<Tuple2<Long, AutomaticIdentificationSystem>> out) {
-                        System.out.println(s);
-                        String[] records = s.split(",");
+                        String[] records = s.split(CSV_SEP);
                         AutomaticIdentificationSystem automaticIdentificationSystem = new AutomaticIdentificationSystem(
                                 records[0],
                                 records[1],
@@ -113,22 +96,17 @@ public class AutomaticIdentificationSystem
                 }).name("source");
     }
 
-    public static DataStream<Tuple2<Long,AutomaticIdentificationSystem>> getInstanceAIS2(StreamExecutionEnvironment streamExecEnv, SourceFunction<NiFiDataPacket> nifiSource) {
-        return streamExecEnv
-                .addSource(nifiSource)
-                //.readTextFile("file:///FLINK_DATA/data/prj2_dataset.txt")
-                .flatMap(new FlatMapFunction<NiFiDataPacket, Tuple2<Long,AutomaticIdentificationSystem>>() {
-                    @Override
-                    public void flatMap(NiFiDataPacket niFiDataPacket, Collector<Tuple2<Long,AutomaticIdentificationSystem>> collector) throws Exception {
-                        String file = new String(niFiDataPacket.getContent(), Charset.defaultCharset());
-                        file = file.substring(file.indexOf("\n") + 1); // Remove header
-
-                        String[] lines = file.split("\n"); // Splitting file by line
-
-                        Arrays.stream(lines).forEach(s -> {
-
-                            System.out.println(s);
-                            String[] records = s.split(",");
+    /**
+     * Per legg
+     * @param inputStream
+     * @return
+     */
+    public static KStream<Long, AutomaticIdentificationSystem> getInstanceAISKafka(KStream<Long, String> inputStream) {
+        return inputStream
+                .flatMapValues(
+                        line -> {
+                            ArrayList<AutomaticIdentificationSystem> ais = new ArrayList<>();
+                            String[] records = line.split(CSV_SEP);
                             AutomaticIdentificationSystem automaticIdentificationSystem = new AutomaticIdentificationSystem(
                                     records[0],
                                     records[1],
@@ -142,13 +120,17 @@ public class AutomaticIdentificationSystem
                                     records[9],
                                     records[10]
                             );
-                            Long timestamp = Utils.fixTimeStamp(records[7]).getTime();
-                            collector.collect(new Tuple2<>(timestamp, automaticIdentificationSystem));
+                            ais.add(automaticIdentificationSystem);
+                            return ais;
                         });
-                    }
-                });
     }
 
+    /**
+     * Per leggere il file da locale
+     *
+     * @param streamExecEnv:
+     * @return :
+     */
     public static DataStream<AutomaticIdentificationSystem> getInstanceAIS3(StreamExecutionEnvironment streamExecEnv) {
         return streamExecEnv
                 .readTextFile("file:///C:\\Users\\emeli\\Desktop\\SABD-ProjectTwo\\data\\prj2_dataset.csv")
@@ -156,23 +138,23 @@ public class AutomaticIdentificationSystem
                     @Override
                     public void flatMap(String s, Collector<AutomaticIdentificationSystem> out) {
 
-                        String[] records = s.split(",");
+                        String[] records = s.split(CSV_SEP);
 
                         AutomaticIdentificationSystem automaticIdentificationSystem = new AutomaticIdentificationSystem(
-                                    records[0],
-                                    records[1],
-                                    records[2],
-                                    records[3],
-                                    records[4],
-                                    records[5],
-                                    records[6],
-                                    records[7],
-                                    records[8],
-                                    records[9],
-                                    records[10]
-                            );
-                            out.collect(automaticIdentificationSystem);
-                        }
+                                records[0],
+                                records[1],
+                                records[2],
+                                records[3],
+                                records[4],
+                                records[5],
+                                records[6],
+                                records[7],
+                                records[8],
+                                records[9],
+                                records[10]
+                        );
+                        out.collect(automaticIdentificationSystem);
+                    }
 
                 }).name("ais");
     }
