@@ -6,6 +6,7 @@ services:
 
   zookeeper:
     image: zookeeper:3.4.9
+    container_name: zookeeper
     hostname: zookeeper
     ports:
       - "2181:2181"
@@ -17,6 +18,7 @@ services:
   ## Kafka
   kafka1:
     image: confluentinc/cp-kafka:5.3.0
+    container_name: kafka1
     hostname: kafka1
     ports:
       - "9091:9091"
@@ -34,6 +36,7 @@ services:
 
   kafdrop:
     image: obsidiandynamics/kafdrop
+    container_name: kafdrop
     restart: "no"
     ports:
       - "9000:9000"
@@ -42,29 +45,29 @@ services:
     depends_on:
       - kafka1
 
-  ## Flink
-  jobmanager:
-    image: flink:latest
-    container_name: jobmanager
-    ports:
-      - "8081:8081"
-    command: jobmanager
-    volumes:
-      - "../target:/target"
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-
-  taskmanager:
-      image: flink:latest
-      container_name: taskmanager
-      depends_on:
-        - jobmanager
-      command: taskmanager
-      environment:
-        - |
-          FLINK_PROPERTIES=
-          jobmanager.rpc.address: jobmanager
-          taskmanager.numberOfTaskSlots: 4
+  ### Flink
+  #  jobmanager:
+  #    image: flink:latest
+  #    container_name: jobmanager
+  #    ports:
+  #      - "8081:8081"
+  #    command: jobmanager
+  #    volumes:
+  #      - "../target:/target"
+  #    environment:
+  #      - |
+  #        FLINK_PROPERTIES=
+  #        jobmanager.rpc.address: jobmanager
+  #
+  #  taskmanager:
+  #      image: flink:latest
+  #      container_name: taskmanager
+  #      depends_on:
+  #        - jobmanager
+  #      command: taskmanager
+  #      environment:
+  #        - |
+  #          FLINK_PROPERTIES=
+  #          jobmanager.rpc.address: jobmanager
+  #          taskmanager.numberOfTaskSlots: 4
 

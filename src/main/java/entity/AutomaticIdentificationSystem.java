@@ -7,7 +7,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
-import org.apache.kafka.streams.kstream.KStream;
 
 import java.util.ArrayList;
 
@@ -96,34 +95,7 @@ public class AutomaticIdentificationSystem {
                 }).name("source");
     }
 
-    /**
-     * Per legg
-     * @param inputStream
-     * @return
-     */
-    public static KStream<Long, AutomaticIdentificationSystem> getInstanceAISKafka(KStream<Long, String> inputStream) {
-        return inputStream
-                .flatMapValues(
-                        line -> {
-                            ArrayList<AutomaticIdentificationSystem> ais = new ArrayList<>();
-                            String[] records = line.split(CSV_SEP);
-                            AutomaticIdentificationSystem automaticIdentificationSystem = new AutomaticIdentificationSystem(
-                                    records[0],
-                                    records[1],
-                                    records[2],
-                                    records[3],
-                                    records[4],
-                                    records[5],
-                                    records[6],
-                                    records[7],
-                                    records[8],
-                                    records[9],
-                                    records[10]
-                            );
-                            ais.add(automaticIdentificationSystem);
-                            return ais;
-                        });
-    }
+
 
     /**
      * Per leggere il file da locale
@@ -158,83 +130,6 @@ public class AutomaticIdentificationSystem {
 
                 }).name("ais");
     }
-
-    /*public static List<AutomaticIdentificationSystem> getInstanceFromFile() throws IOException {
-        List<AutomaticIdentificationSystem> dataSource = new ArrayList<>();
-        Reader reader = Files.newBufferedReader(Paths.get(DIR_CSV));
-        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
-                .withFirstRecordAsHeader()
-                .withIgnoreHeaderCase()
-                .withTrim());
-
-        for (CSVRecord csvRecord : csvParser) {
-            // LocalDate localDate = LocalDate.parse(csvRecord.get(7), dateTimeFormatter);
-
-            int reportedDraught = 0;
-            if (!csvRecord.get(9).equals("")) {
-                reportedDraught = Integer.parseInt(csvRecord.get(9));
-            }
-
-            int heading = 0;
-            if (!csvRecord.get(6).equals("")) {
-                reportedDraught = Integer.parseInt(csvRecord.get(6));
-            }
-
-            Date localDate = Utils.fixTimeStamp(csvRecord);
-            String date = localDate.toString();
-
-            // Accessing values by Header names
-             dataSource.add(new AutomaticIdentificationSystem(
-                    csvRecord.get(0),
-                    Integer.valueOf(csvRecord.get(1)),
-                    Float.valueOf(csvRecord.get(2)),
-                    Double.valueOf(csvRecord.get(3)),
-                    Double.valueOf(csvRecord.get(4)),
-                    Integer.valueOf(csvRecord.get(5)),
-                    heading,
-                    date,
-                    csvRecord.get(8),
-                    reportedDraught,
-                    csvRecord.get(10)
-            ));
-        }
-        System.out.println(dataSource);
-        return dataSource;
-    }*/
-
-    /*public static DataSet<AutomaticIdentificationSystem> getInstance(DataSource<String> data) throws IOException {
-
-        return data.map(
-                line -> {
-                    String[] split = line.split(",");
-
-                    int reportedDraught = 0;
-                    if (!split[9].equals("")) {
-                        reportedDraught = Integer.parseInt(split[9]);
-                    }
-
-                    int heading = 0;
-                    if (!split[6].equals("")) {
-                        reportedDraught = Integer.parseInt(split[6]);
-                    }
-
-                    return new AutomaticIdentificationSystem(
-                            split[0],
-                            Integer.valueOf(split[1]),
-                            Float.valueOf(split[2]),
-                            Double.valueOf(split[3]),
-                            Double.valueOf(split[4]),
-                            Integer.valueOf(split[5]),
-                            heading,
-                            split[7],
-                            split[8],
-                            reportedDraught,
-                            split[10]
-                    );
-                }
-
-        );
-    }*/
 
 
     @Override

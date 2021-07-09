@@ -39,6 +39,7 @@ public class AccumulatorQueryDue {
     }
 
     /**
+     * Add ship to the morning set
      *
      * @param shipID:
      * @param cellID:
@@ -58,6 +59,7 @@ public class AccumulatorQueryDue {
     }
 
     /**
+     * Add ship to the afternoon set
      *
      * @param shipID:
      * @param cellID:

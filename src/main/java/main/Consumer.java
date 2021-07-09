@@ -8,7 +8,6 @@ import java.util.Scanner;
 
 import static utils.Constants.FLINK_OUTPUT_FILES;
 import static utils.KafkaConstants.FLINK_TOPICS;
-import static utils.KafkaConstants.KAFKA_TOPICS;
 
 /**
  * Class used to launch consumers for Flink and Kafka Streams output
@@ -29,15 +28,7 @@ public class Consumer {
         for (int i = 0; i < FLINK_TOPICS.length; i++) {
             ConsumerKafka consumer = new ConsumerKafka(id,
                     FLINK_TOPICS[i],
-                    true,
                     FLINK_OUTPUT_FILES[i]);
-            consumers.add(consumer);
-            new Thread(consumer).start();
-            id++;
-        }
-        // launch Kafka Streams topics consumers
-        for (String topic : KAFKA_TOPICS) {
-            ConsumerKafka consumer = new ConsumerKafka(id, topic, false, null);
             consumers.add(consumer);
             new Thread(consumer).start();
             id++;

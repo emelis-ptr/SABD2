@@ -2,12 +2,9 @@ package entity;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.kafka.streams.kstream.KeyValueMapper;
 import utils.Utils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.util.Collector;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.KStream;
 
 import static utils.Constants.*;
 
@@ -119,24 +116,6 @@ public class ShipMap {
                         out.collect(shipMap);
                     }
                 }).name("mappa");
-    }
-
-    public static KStream<Long, ShipMap> getInstanceMappaKafka(KStream<Long, AutomaticIdentificationSystem> dataStream) {
-
-        return dataStream
-                .map(new KeyValueMapper<Long, AutomaticIdentificationSystem, KeyValue<Long, ShipMap>>() {
-                    @Override
-                    public KeyValue<Long, ShipMap> apply(Long aLong, AutomaticIdentificationSystem automaticIdentificationSystem) {
-                        ShipMap shipMap = new ShipMap(
-                                automaticIdentificationSystem.getTripID(),
-                                automaticIdentificationSystem.getShipID(),
-                                Integer.parseInt(automaticIdentificationSystem.getShipType()),
-                                Double.parseDouble(automaticIdentificationSystem.getLat()),
-                                Double.parseDouble(automaticIdentificationSystem.getLon()),
-                                automaticIdentificationSystem.getTimestamp());
-                        return new KeyValue<>(shipMap.getTimestamp(), shipMap);
-                    }
-                });
     }
 
     public static DataStream<ShipMap> getInstanceMappa2(DataStream<AutomaticIdentificationSystem> dataStream) {

@@ -9,18 +9,13 @@ import utils.serdes.FlinkKafkaSerializer;
 import utils.KafkaConstants;
 import utils.OutputFormatter;
 import flink.queryUno.AggregatorQueryUno;
-import entity.AverageQueryUno;
 import flink.queryUno.WindowQueryUno;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
-import java.time.Duration;
+import java.util.Calendar;
 import java.util.Properties;
 
 import static utils.Constants.ORIENTAL;
@@ -34,7 +29,8 @@ import static utils.Constants.ORIENTAL;
 
 public class QueryUno {
 
-    /**
+    /** Query uno
+     *
      * @param instanceMappa:
      */
     public static void queryUno(DataStream<ShipMap> instanceMappa) {
@@ -42,16 +38,14 @@ public class QueryUno {
         Properties prop = KafkaProperties.getFlinkSinkProperties("producer");
 
         DataStream<ShipMap> shipMapDataStream = instanceMappa
-                .filter((FilterFunction<ShipMap>) entry -> entry.getSeaType().equals(ORIENTAL))
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<ShipMap>forBoundedOutOfOrderness(Duration.ofDays(1))
-                        .withTimestampAssigner((shipMap, timestamp) -> shipMap.getTimestamp()))
+                .filter(entry -> entry.getSeaType().equals(ORIENTAL))
                 .name("filtered-query-uno");
 
         DataStream<String> streamWeekly = shipMapDataStream
                 .keyBy(ShipMap::getCellID)
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
                 .aggregate(new AggregatorQueryUno(), new WindowQueryUno())
-                .map(new ResultMapper())
+                .map(resultQuery1 -> OutputFormatter.query1OutcomeFormatter(Calendar.DAY_OF_WEEK,resultQuery1))
                 .name("flink-query-one-weekly");
 
         //add sink for producer
@@ -61,18 +55,18 @@ public class QueryUno {
                                 prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
                 .name("Sink-" + KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC);
 
+        //streamWeekly.addSink(SinkBuilder.buildSink("results/queryUno-week")).setParallelism(1);
+
         //add sink for benchmark
         streamWeekly
                 .addSink(new BenchmarkSink())
                 .name(KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC + "-benchmark");
 
-        streamWeekly.addSink(SinkBuilder.buildSink("results/queryUno-week")).setParallelism(1);
-
         DataStream<String> streamMonthly = shipMapDataStream
                 .keyBy(ShipMap::getCellID)
                 .window(new MonthWindowAssigner())
                 .aggregate(new AggregatorQueryUno(), new WindowQueryUno())
-                .map(new ResultMapper())
+                .map(resultQuery1 -> OutputFormatter.query1OutcomeFormatter(Calendar.DAY_OF_MONTH,resultQuery1))
                 .name("flink-query-one-monthly");
 
         //add sink for producer
@@ -81,7 +75,7 @@ public class QueryUno {
                         prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
                 .name("query1-monthly-flink");
 
-        streamMonthly.addSink(SinkBuilder.buildSink("results/queryUno-Month")).setParallelism(1);
+        //streamMonthly.addSink(SinkBuilder.buildSink("results/queryUno-month")).setParallelism(1);
 
         //add sink for benchmark
         streamMonthly
@@ -90,15 +84,4 @@ public class QueryUno {
 
     }
 
-
-    /**
-     *
-     */
-    private static class ResultMapper implements MapFunction<AverageQueryUno, String> {
-        @Override
-        public String map(AverageQueryUno outcome) {
-            System.out.println(outcome);
-            return OutputFormatter.query1OutcomeFormatter(outcome);
-        }
-    }
 }

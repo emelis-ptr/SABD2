@@ -1,6 +1,5 @@
 package utils;
 
-import entity.AverageShip;
 import entity.RankQueryDue;
 import entity.AverageQueryUno;
 import org.apache.commons.io.FileUtils;
@@ -9,6 +8,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Locale;
 
 import static utils.Constants.*;
 
@@ -36,51 +37,24 @@ public class OutputFormatter {
      * @param outcome to format
      * @return formatted string
      */
-    public static String query1OutcomeFormatter(AverageQueryUno outcome) {
-        Double avg35 = 0.0;
-        Double avg6069 = 0.0;
-        Double avg7079 = 0.0;
-        Double avgO = 0.0;
-        StringBuilder builder = new StringBuilder();
+    public static String query1OutcomeFormatter(int days, AverageQueryUno outcome) {
+        StringBuilder entryResultBld = new StringBuilder();
+        double d;
+        entryResultBld.append(outcome.getDate())
+                .append(",")
+                .append(outcome.getCellId());
 
-        builder.append(outcome.getDate());
-        builder.append(";");
-        builder.append(outcome.getCellId());
-        builder.append(";");
-
-        for(AverageShip result : outcome.getAverage()) {
-
-            if (result.getShip35() != 0L && result.getAvg35() != 0.0) {
-                avg35 = result.getAvg35();
-            }
-            if (result.getShip6069() != 0L && result.getAvg6069() != 0.0) {
-                avg6069 = result.getAvg6069();
-            }
-            if (result.getShip7079() != 0L && result.getAvg7079() != 0.0) {
-                avg7079 = result.getAvg7079();
-            }
-            if (result.getShipO() != 0L && result.getAvgO() != 0.0) {
-                avgO = result.getAvgO();
+        for(int i = 0; i< SHIP_TYPES.length ; i++){
+            String type = SHIP_TYPES[i];
+            Integer v = outcome.getTypeMap().get(type);
+            if(v == null){
+                entryResultBld.append(",").append(type).append(",");
+            } else {
+                d = ((double)v)  / days;
+                entryResultBld.append(",").append(type).append(",").append(String.format(Locale.ENGLISH,"%.2f",d));
             }
         }
-
-        builder.append(MILITARY);
-        builder.append(";");
-        builder.append(avg35);
-        builder.append(";");
-        builder.append(PASSENGER);
-        builder.append(";");
-        builder.append(avg6069);
-        builder.append(";");
-        builder.append(CARGO);
-        builder.append(";");
-        builder.append(avg7079);
-        builder.append(";");
-        builder.append(OTHER);
-        builder.append(";");
-        builder.append(avgO);
-
-        return builder.toString();
+        return entryResultBld.toString();
     }
 
     /**
@@ -113,6 +87,7 @@ public class OutputFormatter {
      */
     @Deprecated
     public static void writeOutputQuery1(String path, AverageQueryUno outcome) {
+        int days = Calendar.DAY_OF_WEEK;
         try {
             // output structures
             File file = new File(path);
@@ -126,7 +101,7 @@ public class OutputFormatter {
             BufferedWriter bw = new BufferedWriter(writer);
             StringBuilder builder = new StringBuilder();
 
-            builder.append(query1OutcomeFormatter(outcome));
+            builder.append(query1OutcomeFormatter(days, outcome));
             builder.append(NEW_LINE);
             bw.append(builder.toString());
             bw.close();

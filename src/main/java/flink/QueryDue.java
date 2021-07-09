@@ -32,10 +32,11 @@ import java.util.Properties;
 public class QueryDue {
 
     /**
+     * Query Due
      *
      * @param instanceMappa:
      */
-    public static void queryDue(DataStream<ShipMap> instanceMappa){
+    public static void queryDue(DataStream<ShipMap> instanceMappa) {
 
         Properties prop = KafkaProperties.getFlinkSinkProperties("producer");
 
@@ -44,7 +45,7 @@ public class QueryDue {
                         .withTimestampAssigner((shipMap, timestamp) -> shipMap.getTimestamp()))
                 .name("instance-mappa");
 
-        DataStream<String>  streamWeekly = mapDataStream
+        DataStream<String> streamWeekly = mapDataStream
                 .keyBy(ShipMap::getSeaType)
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
                 .aggregate(new AggregatorQueryDue(), new WindowQueryDue())
@@ -53,16 +54,16 @@ public class QueryDue {
 
         //add sink for producer
         streamWeekly.addSink(new FlinkKafkaProducer<>(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC,
-                        new FlinkKafkaSerializer(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC),
-                        prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
+                new FlinkKafkaSerializer(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC),
+                prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
                 .name(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC + "-sink");
+
+        //streamWeekly.addSink(SinkBuilder.buildSink("results/queryDue-week")).setParallelism(1);
 
         //add sink for benchmark
         streamWeekly
                 .addSink(new BenchmarkSink())
                 .name(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC + "-benchmark");
-
-        streamWeekly.addSink(SinkBuilder.buildSink("results/queryDue-week")).setParallelism(1);
 
         DataStream<String> streamMonthly = mapDataStream
                 .keyBy(ShipMap::getSeaType)
@@ -73,16 +74,16 @@ public class QueryDue {
 
         //add sink for producer
         streamMonthly.addSink(new FlinkKafkaProducer<>(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC,
-                        new FlinkKafkaSerializer(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC),
-                        prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
+                new FlinkKafkaSerializer(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC),
+                prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
                 .name(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC + "-sink");
+
+        //streamMonthly.addSink(SinkBuilder.buildSink("results/queryDue-month")).setParallelism(1);
 
         //add sink for benchmark
         streamWeekly
                 .addSink(new BenchmarkSink())
                 .name(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC + "-benchmark");
-
-        streamMonthly.addSink(SinkBuilder.buildSink("results/queryDue-month")).setParallelism(1);
     }
 
     /**
@@ -90,8 +91,7 @@ public class QueryDue {
      */
     private static class ResultMapper implements MapFunction<RankQueryDue, String> {
         @Override
-        public String map(RankQueryDue outcome)  {
-            System.out.println(outcome);
+        public String map(RankQueryDue outcome) {
             return OutputFormatter.query2OutcomeFormatter(outcome);
         }
     }

@@ -7,6 +7,10 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.
 
 import java.util.concurrent.TimeUnit;
 
+/*
+  Class Sink to write outputs in csv file
+ */
+
 public class SinkBuilder {
 
     public static StreamingFileSink<String> buildSink(String outputPath) {

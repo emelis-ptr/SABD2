@@ -9,6 +9,7 @@ public class Constants {
     public static final String PASSENGER = "PASSENGER";
     public static final String CARGO = "CARGO";
     public static final String OTHER = "OTHER";
+    public static final String[] SHIP_TYPES = {MILITARY, PASSENGER, CARGO, OTHER};
 
     public static final String DDMMYYYY = "dd-MM-yyyy";
     public static final double CANALE_DI_SICILIA_LON = 11.797696;

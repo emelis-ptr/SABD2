@@ -9,7 +9,6 @@ public class AverageQueryUno {
 
     private Date date;
     private String cellId;
-    private List<AverageShip> average;
     private final Map<String, Integer> typeMap;
 
     public AverageQueryUno(Map<String, Set<String>> typeMapInput){
@@ -40,20 +39,12 @@ public class AverageQueryUno {
         this.cellId = cellId;
     }
 
-    public List<AverageShip> getAverage() {
-        return average;
-    }
-
-    public void setAverage(List<AverageShip> average) {
-        this.average = average;
-    }
 
     @Override
     public String toString() {
         return "ResultQueryUno{" +
                 "date=" + date +
                 ", cellId='" + cellId + '\'' +
-                "," + average + '\'' +
                 ", typeMap=" + typeMap +
                 '}';
     }
