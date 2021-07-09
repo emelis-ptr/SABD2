@@ -18,7 +18,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import java.util.Calendar;
 import java.util.Properties;
 
-import static utils.Constants.ORIENTAL;
+import static utils.Constants.OCCIDENTAL;
 
     /*
       Calcolare per ogni cella del Mar Mediterraneo Occidentale,
@@ -38,7 +38,7 @@ public class QueryUno {
         Properties prop = KafkaProperties.getFlinkSinkProperties("producer");
 
         DataStream<ShipMap> shipMapDataStream = instanceMappa
-                .filter(entry -> entry.getSeaType().equals(ORIENTAL))
+                .filter(entry -> entry.getSeaType().equals(OCCIDENTAL)) //considera solo mare occidentale
                 .name("filtered-query-uno");
 
         DataStream<String> streamWeekly = shipMapDataStream

@@ -36,15 +36,10 @@ public class FlinkMain {
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>(KafkaConstants.DATASOURCE_TOPIC, new SimpleStringSchema(), props);
         consumer.assignTimestampsAndWatermarks(WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofMinutes(1)));
 
-        /*DataStream<Tuple2<Long, AutomaticIdentificationSystem>> instanceAIS = AutomaticIdentificationSystem.getInstanceAIS(streamExecEnv, consumer);
+        DataStream<Tuple2<Long, AutomaticIdentificationSystem>> instanceAIS = AutomaticIdentificationSystem.getInstanceAIS(streamExecEnv, consumer);
         DataStream<ShipMap> instanceMappa = ShipMap.getInstanceMappa(instanceAIS)
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<ShipMap>forBoundedOutOfOrderness(Duration.ofMinutes(1))
-                .withTimestampAssigner((ship, timestamp) -> ship.getTimestamp()));*/
-
-        DataStream<AutomaticIdentificationSystem> instanceAIS = AutomaticIdentificationSystem.getInstanceAIS3(streamExecEnv);
-        DataStream<ShipMap> instanceMappa = ShipMap.getInstanceMappa2(instanceAIS)
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<ShipMap>forBoundedOutOfOrderness(Duration.ofMinutes(1))
-                        .withTimestampAssigner((ship, timestamp) -> ship.getTimestamp()));
+                .withTimestampAssigner((ship, timestamp) -> ship.getTimestamp()));
 
         QueryUno.queryUno(instanceMappa);
         QueryDue.queryDue(instanceMappa);

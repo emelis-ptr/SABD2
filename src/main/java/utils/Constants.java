@@ -12,7 +12,7 @@ public class Constants {
     public static final String[] SHIP_TYPES = {MILITARY, PASSENGER, CARGO, OTHER};
 
     public static final String DDMMYYYY = "dd-MM-yyyy";
-    public static final double CANALE_DI_SICILIA_LON = 11.797696;
+    public static final double CANALE_DI_SICILIA_LON = 12;
     public static final String OCCIDENTAL = "Occidental";
     public static final String ORIENTAL = "Oriental";
 

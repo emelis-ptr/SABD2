@@ -23,10 +23,10 @@ public class AccumulatorQueryUno implements Serializable {
 
     public void add(String shipType, String tripId){
         Set<String> typeSet = shipMap.get(shipType);
-        //cell found but shipType not found in that cell
+
         if(typeSet == null){
             typeSet = new HashSet<>();
-        }  //update value
+        }
 
         typeSet.add(tripId);
         shipMap.put(shipType, typeSet);

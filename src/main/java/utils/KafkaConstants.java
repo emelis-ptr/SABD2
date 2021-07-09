@@ -9,7 +9,6 @@ public class KafkaConstants {
     public static final String FLINK_QUERY_2_WEEKLY_TOPIC = "flink-query2-weekly";
     public static final String FLINK_QUERY_2_MONTHLY_TOPIC = "flink-query2-monthly";
 
-
     public static final String[] FLINK_TOPICS = {FLINK_QUERY_1_WEEKLY_TOPIC,
             FLINK_QUERY_1_MONTHLY_TOPIC, FLINK_QUERY_2_WEEKLY_TOPIC, FLINK_QUERY_2_MONTHLY_TOPIC};
 

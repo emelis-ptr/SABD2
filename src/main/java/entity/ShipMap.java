@@ -31,13 +31,18 @@ public class ShipMap {
     }
 
     private String defineCells(double lon, double lat) {
+        char latID = 'A';
+        int lonID = 1;
         double dimLat = (MAX_LAT - MIN_LAT) / NUM_CELL_LAT;
         double dimLon = (MAX_LON - MIN_LON) / NUM_CELL_LON;
 
-        char cellaLat = (char) ('A' + ((int) Math.ceil((lat - MIN_LAT) / dimLat)) - 1);
-        int cellaLon = (int) Math.ceil((lon - MIN_LON) / dimLon);
+        int cellaLat = (int) ((lat - MIN_LAT) / dimLat);
+        int cellaLon = (int) ((lon - MIN_LON) / dimLon);
 
-        return "" + cellaLat + cellaLon;
+        latID += cellaLat;
+        lonID += cellaLon;
+
+        return "" + latID + lonID;
     }
 
     private String defineShipType(int shipType) {
