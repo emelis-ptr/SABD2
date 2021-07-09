@@ -7,11 +7,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import static utils.Constants.DIR_CSV;
-
 public class Producer {
 
     private static final Long SLEEP = 10L;
+    public static final String dirDataset = "data/prj2_dataset.csv";
 
     @SuppressWarnings({"BusyWait"})
     public static void main(String[] args) {
@@ -24,7 +23,7 @@ public class Producer {
 
         try {
             // read from file
-            FileReader file = new FileReader(DIR_CSV);
+            FileReader file = new FileReader(Producer.dirDataset);
             BufferedReader bufferedReader = new BufferedReader(file);
 
             while ((line = bufferedReader.readLine()) != null) {

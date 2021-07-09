@@ -4,6 +4,7 @@ import entity.AutomaticIdentificationSystem;
 import entity.ShipMap;
 import kafkaStream.QueryUnoKafka;
 import kafkaStream.conf.KafkaStreamConfig;
+import org.apache.kafka.common.metrics.Sensor;
 import utils.KafkaConstants;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;

@@ -2,7 +2,8 @@ package utils;
 
 public class Constants {
 
-    public static String DIR_CSV = "data/prj2_dataset.csv";
+    public static String DIR_CSV = "/data/prj2_dataset.csv";
+    private static final String RESULT_PATH = "results/";
 
     public static final String MILITARY = "MILITARY";
     public static final String PASSENGER = "PASSENGER";

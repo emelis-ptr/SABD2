@@ -75,7 +75,6 @@ public class ConsumerKafka implements Runnable {
 
         // subscribe the consumer to the topic
         subscribeToTopic(consumer, topic);
-        run();
     }
 
     @Override

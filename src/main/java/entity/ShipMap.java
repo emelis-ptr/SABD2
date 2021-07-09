@@ -35,7 +35,7 @@ public class ShipMap {
 
     private String defineCells(double lon, double lat) {
         double dimLat = (MAX_LAT - MIN_LAT) / NUM_CELL_LAT;
-        double dimLon = (MAX_LON - MIN_LON) / NUM_CELL_LAT;
+        double dimLon = (MAX_LON - MIN_LON) / NUM_CELL_LON;
 
         char cellaLat = (char) ('A' + ((int) Math.ceil((lat - MIN_LAT) / dimLat)) - 1);
         int cellaLon = (int) Math.ceil((lon - MIN_LON) / dimLon);

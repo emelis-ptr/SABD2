@@ -68,6 +68,7 @@ public class QueryUnoKafka {
                 // publish results to the correct kafka topic
                 .to(KafkaConstants.KAFKA_QUERY_1_MONTHLY_TOPIC, Produced.with(Serdes.String(), Serdes.String()));
 
+
     }
 
     /**

@@ -1,8 +1,10 @@
 package flink;
 
 import assigner.MonthWindowAssigner;
+import benchmarks.BenchmarkSink;
 import entity.ShipMap;
 import kafka.KafkaProperties;
+import utils.SinkBuilder;
 import utils.serdes.FlinkKafkaSerializer;
 import utils.KafkaConstants;
 import utils.OutputFormatter;
@@ -21,6 +23,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import java.time.Duration;
 import java.util.Properties;
 
+import static utils.Constants.ORIENTAL;
+
     /*
       Calcolare per ogni cella del Mar Mediterraneo Occidentale,
       il numero medio di navi militari (SHIPTYPE= 35), navi per trasporto passeggeri (SHIPTYPE = 60-69),
@@ -37,34 +41,53 @@ public class QueryUno {
 
         Properties prop = KafkaProperties.getFlinkSinkProperties("producer");
 
-        double seaOcc = 12.0;
-
-        KeyedStream<ShipMap, String> keyedStream = instanceMappa
-                .filter((FilterFunction<ShipMap>) entry -> entry.getLon() < seaOcc)
+        DataStream<ShipMap> shipMapDataStream = instanceMappa
+                .filter((FilterFunction<ShipMap>) entry -> entry.getSeaType().equals(ORIENTAL))
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<ShipMap>forBoundedOutOfOrderness(Duration.ofDays(1))
                         .withTimestampAssigner((shipMap, timestamp) -> shipMap.getTimestamp()))
-                .keyBy(ShipMap::getCellID);
+                .name("filtered-query-uno");
 
-        keyedStream
+        DataStream<String> streamWeekly = shipMapDataStream
+                .keyBy(ShipMap::getCellID)
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
                 .aggregate(new AggregatorQueryUno(), new WindowQueryUno())
                 .map(new ResultMapper())
+                .name("flink-query-one-weekly");
+
+        //add sink for producer
+        streamWeekly
                 .addSink(new FlinkKafkaProducer<>(KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC,
                                 new FlinkKafkaSerializer(KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC),
                                 prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
-                //.addSink(SinkBuilder.buildSink(RESULTS_DIRECTORY + "/queryUno-week")).setParallelism(1)
                 .name("Sink-" + KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC);
 
+        //add sink for benchmark
+        streamWeekly
+                .addSink(new BenchmarkSink())
+                .name(KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC + "-benchmark");
 
-        keyedStream
+        streamWeekly.addSink(SinkBuilder.buildSink("results/queryUno-week")).setParallelism(1);
+
+        DataStream<String> streamMonthly = shipMapDataStream
+                .keyBy(ShipMap::getCellID)
                 .window(new MonthWindowAssigner())
                 .aggregate(new AggregatorQueryUno(), new WindowQueryUno())
                 .map(new ResultMapper())
-                .addSink(new FlinkKafkaProducer<>(KafkaConstants.FLINK_QUERY_1_MONTHLY_TOPIC,
+                .name("flink-query-one-monthly");
+
+        //add sink for producer
+        streamMonthly.addSink(new FlinkKafkaProducer<>(KafkaConstants.FLINK_QUERY_1_MONTHLY_TOPIC,
                         new FlinkKafkaSerializer(KafkaConstants.FLINK_QUERY_1_MONTHLY_TOPIC),
                         prop, FlinkKafkaProducer.Semantic.EXACTLY_ONCE))
-                //.addSink(SinkBuilder.buildSink(RESULTS_DIRECTORY + "/queryUno-Month")).setParallelism(1)
                 .name("query1-monthly-flink");
+
+        streamMonthly.addSink(SinkBuilder.buildSink("results/queryUno-Month")).setParallelism(1);
+
+        //add sink for benchmark
+        streamMonthly
+                .addSink(new BenchmarkSink())
+                .name(KafkaConstants.FLINK_QUERY_1_MONTHLY_TOPIC + "-benchmark");
+
     }
 
 

@@ -1,5 +1,6 @@
 package utils;
 
+import entity.AverageShip;
 import entity.RankQueryDue;
 import entity.AverageQueryUno;
 import org.apache.commons.io.FileUtils;
@@ -17,9 +18,7 @@ import static utils.Constants.*;
 @SuppressWarnings({"ResultOfMethodCallIgnored", "DuplicatedCode"})
 public class OutputFormatter {
 
-
     /**
-     * Scope: Global
      * Used to remove old files in Results directory
      */
     public static void cleanResultsFolder() {
@@ -32,36 +31,59 @@ public class OutputFormatter {
     }
 
     /**
-     * Scope: Flink - Query 1
      * Formats the processing outcome as a string to be published to Kafka
      *
      * @param outcome to format
      * @return formatted string
      */
     public static String query1OutcomeFormatter(AverageQueryUno outcome) {
-        return outcome.getDate() +
-                ";" +
-                outcome.getCellId() +
-                ";" +
-                "Military" +
-                ";" +
-                outcome.getAvg35() +
-                ";" +
-                "Passenger" +
-                ";" +
-                outcome.getAvg6069() +
-                ";" +
-                "Cargo" +
-                ";" +
-                outcome.getAvg7079() +
-                ";" +
-                "Other" +
-                ";" +
-                outcome.getAvgO();
+        Double avg35 = 0.0;
+        Double avg6069 = 0.0;
+        Double avg7079 = 0.0;
+        Double avgO = 0.0;
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(outcome.getDate());
+        builder.append(";");
+        builder.append(outcome.getCellId());
+        builder.append(";");
+
+        for(AverageShip result : outcome.getAverage()) {
+
+            if (result.getShip35() != 0L && result.getAvg35() != 0.0) {
+                avg35 = result.getAvg35();
+            }
+            if (result.getShip6069() != 0L && result.getAvg6069() != 0.0) {
+                avg6069 = result.getAvg6069();
+            }
+            if (result.getShip7079() != 0L && result.getAvg7079() != 0.0) {
+                avg7079 = result.getAvg7079();
+            }
+            if (result.getShipO() != 0L && result.getAvgO() != 0.0) {
+                avgO = result.getAvgO();
+            }
+        }
+
+        builder.append(MILITARY);
+        builder.append(";");
+        builder.append(avg35);
+        builder.append(";");
+        builder.append(PASSENGER);
+        builder.append(";");
+        builder.append(avg6069);
+        builder.append(";");
+        builder.append(CARGO);
+        builder.append(";");
+        builder.append(avg7079);
+        builder.append(";");
+        builder.append(OTHER);
+        builder.append(";");
+        builder.append(avgO);
+
+        return builder.toString();
     }
 
     /**
-     * Scope: Flink - Query 2
      * Formats the processing outcome as a string to be published to Kafka
      *
      * @param outcome to format
@@ -86,7 +108,7 @@ public class OutputFormatter {
      * @param path    where to store csv
      * @param outcome to be stored
      * @deprecated - needed before Kafka Flink output topic creation
-     * Scope: Flink - Query 1
+     *
      * Save outcome to csv file and print result
      */
     @Deprecated
@@ -114,10 +136,10 @@ public class OutputFormatter {
             if (CONSOLE_RESULTS_PRINT) {
                 switch (path) {
                     case QUERY1_WEEKLY_CSV_FILE_PATH:
-                        System.out.println(QUERY1_HEADER + WEEKLY_HEADER + builder.toString());
+                        System.out.println(QUERY1_HEADER + WEEKLY_HEADER + builder);
                         break;
                     case QUERY1_MONTHLY_CSV_FILE_PATH:
-                        System.out.println(QUERY1_HEADER + MONTHLY_HEADER + builder.toString());
+                        System.out.println(QUERY1_HEADER + MONTHLY_HEADER + builder);
                         break;
                 }
             }
@@ -132,7 +154,7 @@ public class OutputFormatter {
      * @param path    where to store csv
      * @param outcome to be stored
      * @deprecated - needed before Kafka Flink output topic creation
-     * Scope: Flink - Query 2
+     *
      * Save outcome to csv file and print result
      */
     @Deprecated
@@ -161,10 +183,10 @@ public class OutputFormatter {
             if (CONSOLE_RESULTS_PRINT) {
                 switch (path) {
                     case QUERY2_MONTHLY_CSV_FILE_PATH:
-                        System.out.println(QUERY2_HEADER + MONTHLY_HEADER + builder.toString());
+                        System.out.println(QUERY2_HEADER + MONTHLY_HEADER + builder);
                         break;
                     case QUERY2_WEEKLY_CSV_FILE_PATH:
-                        System.out.println(QUERY2_HEADER + WEEKLY_HEADER + builder.toString());
+                        System.out.println(QUERY2_HEADER + WEEKLY_HEADER + builder);
                         break;
                 }
             }

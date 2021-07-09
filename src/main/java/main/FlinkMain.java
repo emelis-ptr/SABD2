@@ -5,7 +5,6 @@ import entity.ShipMap;
 import flink.QueryDue;
 import flink.QueryUno;
 import kafka.KafkaProperties;
-import org.apache.flink.configuration.Configuration;
 import utils.KafkaConstants;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
