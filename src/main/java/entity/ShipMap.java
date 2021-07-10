@@ -115,12 +115,13 @@ public class ShipMap {
                                 entry.f1.getTripID(),
                                 entry.f1.getShipID(),
                                 Integer.parseInt(entry.f1.getShipType()),
-                                Double.parseDouble(entry.f1.getLat()),
-                                Double.parseDouble(entry.f1.getLon()),
+                                entry.f1.getLat(),
+                                entry.f1.getLon(),
                                 entry.f1.getTimestamp());
                         out.collect(shipMap);
                     }
-                }).name("mappa");
+                })
+                .name("mappa");
     }
 
     public static DataStream<ShipMap> getInstanceMappa2(DataStream<AutomaticIdentificationSystem> dataStream) {
@@ -133,8 +134,8 @@ public class ShipMap {
                                 entry.getTripID(),
                                 entry.getShipID(),
                                 Integer.parseInt(entry.getShipType()),
-                                Double.parseDouble(entry.getLat()),
-                                Double.parseDouble(entry.getLon()),
+                                entry.getLat(),
+                                entry.getLon(),
                                 entry.getTimestamp());
                         out.collect(shipMap);
                     }

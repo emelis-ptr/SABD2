@@ -22,7 +22,7 @@ public class FlinkMain {
 
     private static final String CONSUMER_GROUP_ID = "single-flink-consumer";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         Configuration conf = new Configuration();
         StreamExecutionEnvironment streamExecEnv = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
@@ -39,12 +39,17 @@ public class FlinkMain {
         DataStream<Tuple2<Long, AutomaticIdentificationSystem>> instanceAIS = AutomaticIdentificationSystem.getInstanceAIS(streamExecEnv, consumer);
         DataStream<ShipMap> instanceMappa = ShipMap.getInstanceMappa(instanceAIS)
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<ShipMap>forBoundedOutOfOrderness(Duration.ofMinutes(1))
-                .withTimestampAssigner((ship, timestamp) -> ship.getTimestamp()));
+                        .withTimestampAssigner((ship, timestamp) -> ship.getTimestamp()));
 
         QueryUno.queryUno(instanceMappa);
         QueryDue.queryDue(instanceMappa);
 
-        streamExecEnv.execute();
+        try {
+            //trigger the execution of the DSP application
+            streamExecEnv.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

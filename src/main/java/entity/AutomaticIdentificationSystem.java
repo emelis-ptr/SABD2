@@ -17,8 +17,8 @@ public class AutomaticIdentificationSystem {
     public String shipID; // stringa esadecimale che rappresenta l’identificativo della nave.
     public String shipType; // numero intero che rappresenta la tipologia della nave.
     public String speed; // numero in virgola mobile che rappresenta la velocità misurata in nodi a cui procede la nave all’istante di segnalazione dell’evento; il separatore decimale è il punto.
-    public String lon; //  numero  in  virgola  mobile  che  rappresenta  la  coordinata  cartesiana  in  gradi  decimali  della longitudine data dal GPS; il separatore decimale è il punto.
-    public String lat; // numero in virgola mobile che rappresenta la coordinata cartesiana in gradi decimali della latitudine data dal sistema GPS; il separatore decimale è il punto.
+    public double lon; //  numero  in  virgola  mobile  che  rappresenta  la  coordinata  cartesiana  in  gradi  decimali  della longitudine data dal GPS; il separatore decimale è il punto.
+    public double lat; // numero in virgola mobile che rappresenta la coordinata cartesiana in gradi decimali della latitudine data dal sistema GPS; il separatore decimale è il punto.
     public String course; // numero intero che rappresenta la direzione del movimento ed è espresso in gradi; è definito come l’angolo in senso orario tra il nord Vero e il punto di destinazione (rotta vera).
     public String heading; // numero intero che rappresenta la direzione verso cui la nave è orientata ed è espresso in gradi; è definito come l’angolo in senso orario tra il nord Vero e l’asse longitudinale della barca (pruao prora vera).
     public String timestamp; //  rappresenta  l’istante  temporale  della  segnalazione  dell’evento  AIS;  il  timestamp è espresso con il formato GG-MM-YY hh:mm:ss (giorno, mese, anno, ore, minuti e secondi dell’even-to).
@@ -26,7 +26,7 @@ public class AutomaticIdentificationSystem {
     public String reportedDraught; // numero intero che rappresenta la profondità della parte immersa della nave(in centimetri) tra la linea di galleggiamento e la chiglia.
     public String tripID; //stringa alfanumerica che rappresenta l’identificativo del viaggio; è composta dai primi 7 caratteri (inclusi 0x) di SHIPID, concatenati con la data di partenza e di arrivo.
 
-    public AutomaticIdentificationSystem(String shipID, String shipType, String speed, String lon, String lat, String course, String heading, String timestamp, String departureportName, String reportedDraught, String tripID) {
+    public AutomaticIdentificationSystem(String shipID, String shipType, String speed, double lon, double lat, String course, String heading, String timestamp, String departureportName, String reportedDraught, String tripID) {
         this.shipID = shipID;
         this.shipType = shipType;
         this.speed = speed;
@@ -48,11 +48,11 @@ public class AutomaticIdentificationSystem {
         return shipType;
     }
 
-    public String getLon() {
+    public double getLon() {
         return lon;
     }
 
-    public String getLat() {
+    public double getLat() {
         return lat;
     }
 
@@ -80,8 +80,8 @@ public class AutomaticIdentificationSystem {
                                 records[0],
                                 records[1],
                                 records[2],
-                                records[3],
-                                records[4],
+                                Double.parseDouble(records[3]),
+                                Double.parseDouble(records[4]),
                                 records[5],
                                 records[6],
                                 records[7],
@@ -92,7 +92,10 @@ public class AutomaticIdentificationSystem {
                         Long timestamp = Utils.fixTimeStamp(records[7]).getTime();
                         out.collect(new Tuple2<>(timestamp, automaticIdentificationSystem));
                     }
-                }).name("source");
+                })
+                .filter(f -> f.f1.lon > 32f && f.f1.lat < 45f)
+                .filter(f -> f.f1.lon > (-6f) && f.f1.lat < 37f)
+                .name("source");
     }
 
 
@@ -116,8 +119,8 @@ public class AutomaticIdentificationSystem {
                                 records[0],
                                 records[1],
                                 records[2],
-                                records[3],
-                                records[4],
+                                Double.parseDouble(records[3]),
+                                Double.parseDouble(records[4]),
                                 records[5],
                                 records[6],
                                 records[7],

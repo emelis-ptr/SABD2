@@ -19,8 +19,8 @@ public class KafkaConstants {
     public static final String ENABLE_CONSUMER_EXACTLY_ONCE = "read_committed";
 
     // brokers
-    public static final String KAFKA_BROKER_2 = "localhost:9091";
-    public static final String KAFKA_BROKER_1 = "kafka1:19091";
+    public static final String KAFKA_BROKER_1 = "localhost:9093";
+    public static final String KAFKA_BROKER_2 = "kafka:9092";
 
     // bootstrap servers
     public static final String BOOTSTRAP_SERVERS =  KAFKA_BROKER_1 + "," + KAFKA_BROKER_2;
