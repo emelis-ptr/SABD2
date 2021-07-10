@@ -90,7 +90,6 @@ contiene il dataset csv
 
 - Per eseguire l'applicazione è possibile farlo su IntelliJ o attraverso il comando:
       
-      docker exec -t -i jobmanager /bin/bash "flink run --parallelism 3 -d -c main.FlinkMain ./target/SABD-ProjectTwo-1.0-SNAPSHOT-jar-with-dependencies.jar".
       java -cp ./target/SABD-ProjectTwo-1.0-SNAPSHOT-jar-with-dependencies.jar main.*nomeclasse*
 
 .
@@ -100,5 +99,4 @@ contiene il dataset csv
 ### **Framework**
 
 - Apache Flink: localhost:8081
-- Apache Kafka web UI: localhost:9000
 
