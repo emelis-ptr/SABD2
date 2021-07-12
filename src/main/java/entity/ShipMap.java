@@ -62,7 +62,7 @@ public class ShipMap {
     }
 
     private String defineSeaType(double longitude) {
-        if (longitude <= CANALE_DI_SICILIA_LON) {
+        if (longitude < CANALE_DI_SICILIA_LON) {
             return OCCIDENTAL;
         } else {
             return ORIENTAL;

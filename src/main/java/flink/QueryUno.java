@@ -60,7 +60,7 @@ public class QueryUno {
         //add sink for benchmark
         streamWeekly
                 .addSink(new BenchmarkSink())
-                .name(KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC + "-benchmark");
+                .name(KafkaConstants.FLINK_QUERY_1_WEEKLY_TOPIC + "-benchmark").setParallelism(1);
 
         DataStream<String> streamMonthly = shipMapDataStream
                 .keyBy(ShipMap::getCellID)
@@ -80,7 +80,7 @@ public class QueryUno {
         //add sink for benchmark
         streamMonthly
                 .addSink(new BenchmarkSink())
-                .name(KafkaConstants.FLINK_QUERY_1_MONTHLY_TOPIC + "-benchmark");
+                .name(KafkaConstants.FLINK_QUERY_1_MONTHLY_TOPIC + "-benchmark").setParallelism(1);
 
     }
 

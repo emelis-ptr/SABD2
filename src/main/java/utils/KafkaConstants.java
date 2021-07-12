@@ -20,8 +20,9 @@ public class KafkaConstants {
 
     // brokers
     public static final String KAFKA_BROKER_1 = "localhost:9093";
-    public static final String KAFKA_BROKER_2 = "kafka:9092";
+    public static final String KAFKA_BROKER_2 = "localhost:9094";
+    public static final String KAFKA_BROKER_3 = "localhost:9095";
 
     // bootstrap servers
-    public static final String BOOTSTRAP_SERVERS =  KAFKA_BROKER_1 + "," + KAFKA_BROKER_2;
+    public static final String BOOTSTRAP_SERVERS =  KAFKA_BROKER_1 + "," + KAFKA_BROKER_2 + "," + KAFKA_BROKER_3;
 }

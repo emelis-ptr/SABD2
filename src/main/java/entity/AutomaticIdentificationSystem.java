@@ -8,8 +8,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
 
-import java.util.ArrayList;
-
 import static utils.Constants.CSV_SEP;
 
 public class AutomaticIdentificationSystem {
@@ -93,8 +91,8 @@ public class AutomaticIdentificationSystem {
                         out.collect(new Tuple2<>(timestamp, automaticIdentificationSystem));
                     }
                 })
-                .filter(f -> f.f1.lon > 32f && f.f1.lat < 45f)
-                .filter(f -> f.f1.lon > (-6f) && f.f1.lat < 37f)
+                .filter(f -> f.f1.lat > 32f && f.f1.lat < 45f)
+                .filter(f -> f.f1.lon > (-6f) && f.f1.lon < 37f)
                 .name("source");
     }
 
@@ -106,7 +104,7 @@ public class AutomaticIdentificationSystem {
      * @param streamExecEnv:
      * @return :
      */
-    public static DataStream<AutomaticIdentificationSystem> getInstanceAIS3(StreamExecutionEnvironment streamExecEnv) {
+    public static DataStream<AutomaticIdentificationSystem> getInstanceAIS2(StreamExecutionEnvironment streamExecEnv) {
         return streamExecEnv
                 .readTextFile("file:///C:\\Users\\emeli\\Desktop\\SABD-ProjectTwo\\data\\prj2_dataset.csv")
                 .flatMap(new FlatMapFunction<String, AutomaticIdentificationSystem>() {
@@ -131,7 +129,10 @@ public class AutomaticIdentificationSystem {
                         out.collect(automaticIdentificationSystem);
                     }
 
-                }).name("ais");
+                })
+                .filter(f -> f.lat > 32f && f.lat < 45f)
+                .filter(f -> f.lon > (-6f) && f.lon < 37f)
+                .name("ais");
     }
 
 

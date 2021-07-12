@@ -7,20 +7,15 @@ import entity.ShipMap;
 import flink.queryDue.AggregatorQueryDue;
 import flink.queryDue.WindowQueryDue;
 import kafka.KafkaProperties;
-import utils.SinkBuilder;
 import utils.serdes.FlinkKafkaSerializer;
 import utils.KafkaConstants;
 import utils.OutputFormatter;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 
-import javax.xml.crypto.Data;
-import java.time.Duration;
 import java.util.Properties;
 
 /*
@@ -40,12 +35,7 @@ public class QueryDue {
 
         Properties prop = KafkaProperties.getFlinkSinkProperties("producer");
 
-        DataStream<ShipMap> mapDataStream = instanceMappa
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<ShipMap>forBoundedOutOfOrderness(Duration.ofDays(1))
-                        .withTimestampAssigner((shipMap, timestamp) -> shipMap.getTimestamp()))
-                .name("instance-mappa");
-
-        DataStream<String> streamWeekly = mapDataStream
+        DataStream<String> streamWeekly = instanceMappa
                 .keyBy(ShipMap::getSeaType)
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
                 .aggregate(new AggregatorQueryDue(), new WindowQueryDue())
@@ -63,9 +53,9 @@ public class QueryDue {
         //add sink for benchmark
         streamWeekly
                 .addSink(new BenchmarkSink())
-                .name(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC + "-benchmark");
+                .name(KafkaConstants.FLINK_QUERY_2_WEEKLY_TOPIC + "-benchmark").setParallelism(1);
 
-        DataStream<String> streamMonthly = mapDataStream
+        DataStream<String> streamMonthly = instanceMappa
                 .keyBy(ShipMap::getSeaType)
                 .window(new MonthWindowAssigner())
                 .aggregate(new AggregatorQueryDue(), new WindowQueryDue())
@@ -81,9 +71,9 @@ public class QueryDue {
         //streamMonthly.addSink(SinkBuilder.buildSink("results/queryDue-month")).setParallelism(1);
 
         //add sink for benchmark
-        streamWeekly
+        streamMonthly
                 .addSink(new BenchmarkSink())
-                .name(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC + "-benchmark");
+                .name(KafkaConstants.FLINK_QUERY_2_MONTHLY_TOPIC + "-benchmark").setParallelism(1);
     }
 
     /**
