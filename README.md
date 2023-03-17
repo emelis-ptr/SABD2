@@ -1,4 +1,4 @@
-`SABD-ProjectTwo`
+`Sistemi e architetture per Big Data - Progetto Due`
 -
 Lo scopo del progetto è rispondere ad alcune query riguardanti un dataset relativo a dati provenienti da dispositivi
 Automatic Identification System(AIS), utilizzando il framework Apache Flink.
